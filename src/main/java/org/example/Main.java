@@ -9,6 +9,7 @@ import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -45,7 +46,6 @@ public class Main {
 
 
     private static List<Employee> parseXML(String xmlFileName) throws ParserConfigurationException, IOException, SAXException {
-        List<String> elements = new ArrayList<>();
         List<Employee> list = new ArrayList<>();
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -54,24 +54,23 @@ public class Main {
         NodeList nodeList = root.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if (node.getNodeName().equals("employee")) {
-                NodeList nodeList1 = node.getChildNodes();
-                for (int j = 0; j < nodeList1.getLength(); j++) {
-                    Node node_ = nodeList1.item(j);
-                    if (Node.ELEMENT_NODE == node_.getNodeType()) {
-                        elements.add(node_.getTextContent());
-                    }
-                }
-                list.add(new Employee(
-                        Long.parseLong(elements.get(0)),
-                        elements.get(1),
-                        elements.get(2),
-                        elements.get(3),
-                        Integer.parseInt(elements.get(4))));
-                elements.clear();
+
+            if (Node.ELEMENT_NODE == node.getNodeType()) {
+                Element employee = (Element) node;
+
+                long id = Integer.parseInt(employee.getElementsByTagName("id").item(0).getTextContent());
+                String firstName = employee.getElementsByTagName("firstName").item(0).getTextContent();
+                String lastName = employee.getElementsByTagName("lastName").item(0).getTextContent();
+                String country = employee.getElementsByTagName("country").item(0).getTextContent();
+                int age = Integer.parseInt(employee.getElementsByTagName("age").item(0).getTextContent());
+
+
+                Employee employee1 = new Employee(id, firstName, lastName, country, age);
+                list.add(employee1);
             }
         }
         return list;
+
     }
 
     private static void writeString(String json, String jsonFilename) {
